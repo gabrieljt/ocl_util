@@ -5,15 +5,20 @@
 #include <fstream>
 #include <iostream>
 
-#define CL_COUNT 3
+#include <opencv2/opencv.hpp>
+
+
+#define CL_COUNT 1
 
 int main(void)
 {
+    /* Data */
+
     std::string fileName("square.cl");
     std::string routineName("square");
     int     routines        = 1;
     int     clCount         = CL_COUNT;
-    float   clIn[CL_COUNT]  = { 2.f, 3.75f, 9.41f };
+    float   clIn[CL_COUNT]  = { 2.f };
     float   clOut[CL_COUNT];
 
     std::ifstream sourceFile(fileName.c_str());
@@ -30,6 +35,27 @@ int main(void)
 
     for (int i = 0; i < clCount; ++i)
         std::cout << clOut[i] << std::endl;
+
+    /* Image */
+
+    fileName        = "imgcpy.cl";
+    routineName     = "imgcpy";
+    cv::Mat clImgIn = cv::imread("./alaor.jpg");
+    cv::Mat clImgOut(clImgIn.size(),CV_8UC3);
+
+    std::ifstream sourceFileImg(fileName.c_str());
+    if (sourceFileImg.fail())
+        std::cout << "Failed to open OpenCL source file" << std::endl;
+    std::string sourceCodeImg(std::istreambuf_iterator<char>(sourceFile), (std::istreambuf_iterator<char>()));
+
+    OCLutil oclImg(CL_DEVICE_TYPE_GPU, fileName, "", routineName, routines);
+    oclImg.CarregarCVMat(clImgIn, 0, 0, false);
+    oclImg.CarregarCVMat(clImgOut, 0, 1, true);
+    oclImg.Exec(0, cl::NDRange(clImgIn.cols, clImgIn.rows), cl::NullRange);
+    oclImg.LerBufferImg(clImgOut, 1);
+
+    cv::imshow("Output", clImgOut);
+    cv::waitKey();
 
     return EXIT_SUCCESS;
 }
