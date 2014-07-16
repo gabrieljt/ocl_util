@@ -49,10 +49,10 @@ int main(void)
     std::string sourceCodeImg(std::istreambuf_iterator<char>(sourceFile), (std::istreambuf_iterator<char>()));
 
     OCLutil oclImg(CL_DEVICE_TYPE_GPU, fileName, "", routineName, routines);
-    oclImg.CarregarCVMat(clImgIn, 0, 0, false);
-    oclImg.CarregarCVMat(clImgOut, 0, 1, true);
+    oclImg.CarregarCVMatf(clImgIn, 0, 0, false);
+    oclImg.CarregarCVMatf(clImgOut, 0, 1, true);
     oclImg.Exec(0, cl::NDRange(clImgIn.cols, clImgIn.rows), cl::NullRange);
-    oclImg.LerBufferImg(clImgOut, 1);
+    oclImg.LerBufferImgf(clImgOut, 1);
 
     cv::imshow("Output", clImgOut);
     cv::waitKey();
